@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Quadratic Formula Calculator</h1>
+ <label>Value of A</label><input id="inputA" value=1></input>
+<label>Value of B</label><input id="inputB" value=3></input>
+<label>Value of C</label><input id="inputC" value=-4></input>
+</body>
+
+<button onclick="Calculate()">Calculate</button>
+<h1 id="calculations"></h1>
+
+<script>
+function Calculate() {
+let valA = document.getElementById("inputA").value;
+let valB = document.getElementById("inputB").value;
+let valC = document.getElementById("inputC").value;
+
+a = parseFloat(valA);
+b = parseFloat(valB);
+c = parseFloat(valC);
+
+document.getElementById(`This is the a value: ${a}`);
+document.getElementById(`This is the b value: ${b}`);
+document.getElementById(`This is the c value: ${c}`);
+
+let underRoot = b**2-4*a*c;
+document.getElementById(`The calculations under the square root sign result in: ${underRoot}`);
+let sqRoot = Math.sqrt(underRoot);
+document.getElementById(`The square root of ${underRoot} is: ${sqRoot}`);
+document.getElementById("calculations").innerHTML=answ;
+}
+
+</script>
+
+
+</html>
