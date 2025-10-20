@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Flag Display</title>
+</head>
+<body>
+    <h1>Select your Country</h1>
+
+    <label for="country">Select a country:</label>
+    <select id="country" name="country">
+        <option value="canada">Canada</option>
+        <option value="india">India</option>
+        <option value="china">China</option>
+        <option value="usa">USA</option>
+        <option value="italy">Italy</option>
+    </select>
+
+    <br><br>
+    <button onclick="showFlag()">Show Flag</button>
+
+    <div id="output" style="margin-top: 20px;"></div>
+
+<script>
+    function showFlag() {
+        let country = document.getElementById("country").value;
+        let flag = "";
+
+        if (country === "canada") {
+      flag = '<img src="https://flagcdn.com/w320/ca.png" width="150">';
+    } else if (country === "india") {
+      flag = '<img src="https://flagcdn.com/w320/in.png" width="150">';
+    } else if (country === "china") {
+      flag = '<img src="https://flagcdn.com/w320/cn.png" width="150">';
+    } else if (country === "usa") {
+      flag = '<img src="https://flagcdn.com/w320/us.png" width="150">';
+    } else if (country === "italy") {
+      flag = '<img src="https://flagcdn.com/w320/it.png" width="150">';
+    } else {
+      flag = "❓";
+    }
+   
+    document.getElementById("output").innerHTML = `<h2>${flag}</h2>`;
+    }
+</script>
+</body>
+</html>
+
+
