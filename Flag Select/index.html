@@ -8,7 +8,6 @@
 <body>
     <h1>Select your Country</h1>
 
-
     <label for="country">Select a country:</label>
     <select id="country" name="country">
         <option value="canada">Canada</option>
@@ -18,19 +17,15 @@
         <option value="italy">Italy</option>
     </select>
 
-
     <br><br>
     <button onclick="showFlag()">Show Flag</button>
 
-
     <div id="output" style="margin-top: 20px;"></div>
-
 
 <script>
     function showFlag() {
         let country = document.getElementById("country").value;
         let flag = "";
-
 
         if (country === "canada") {
       flag = '<img src="https://flagcdn.com/w320/ca.png" width="150">';
