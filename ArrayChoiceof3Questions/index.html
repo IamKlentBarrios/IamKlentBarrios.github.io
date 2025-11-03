@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 8-3 Assignment</title>
+</head>
+<body>
+    <h1>Day 8-3: JavaScript Array Challenges</h1>
+
+    <h2>1. Celsius → Fahrenheit</h2>
+    <table border="1" id="tempTable">
+        <thead>
+            <tr>
+                <th>Celsius (°C)</th>
+                <th>Fahrenheit (°F)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>2. Word Lengths in a Sentence</h2>
+    <p>Sentence: "I am Smart"</p>
+    <p id="wordLengths"></p>
+
+    <h2>3. Capitalize Student Names</h2>
+    <p>Original Names: <span id="originalNames"></span></p>
+    <p>Capitalized Names: <span id="capitalizedNames"></span></p>
+
+<script>
+
+    let celsius = [0, 10, 20, 30, 40];
+    let fahrenheit = celsius.map(c => (c * 9/5 + 32).toFixed(1));
+
+    let tempTableBody = document.querySelector("#tempTable tbody");
+    for (let i = 0; i < celsius.length; i++) {
+        let row = tempTableBody.insertRow();
+        let cell1 = row.insertCell(0);
+        let cell2 = row.insertCell(1);
+        cell1.textContent = celsius[i];
+        cell2.textContent = fahrenheit[i];
+    }
+
+    let sentence = "I am Smart";
+    let words = sentence.split(" ");
+    let lengths = words.map(word => word.length);
+    document.getElementById("wordLengths").textContent = 
+        "Word lengths: " + lengths.join(", ");
+
+    let studentNames = ["alex", "jordan", "mia", "liam", "sophia"];
+    document.getElementById("originalNames").textContent = studentNames.join(", ");
+
+    let capitalized = studentNames.map(name => 
+        name.charAt(0).toUpperCase() + name.slice(1)
+    );
+    document.getElementById("capitalizedNames").textContent = capitalized.join(", ");
+</script>
+
+</body>
+</html>
