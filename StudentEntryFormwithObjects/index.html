@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Entry Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    form {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      max-width: 450px;
+    }
+    form div {
+      margin: 8px 0;
+    }
+    label {
+      display: inline-block;
+      width: 120px;
+    }
+    input[type="text"], input[type="number"], input[type="email"] {
+      width: 220px;
+      padding: 4px;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #studentList {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    #studentList th, #studentList td {
+      border: 1px solid #999;
+      padding: 8px;
+      text-align: left;
+    }
+    #studentList th {
+      background: #eee;
+    }
+
+    .actionBtn {
+      cursor: pointer;
+      padding: 4px 8px;
+      background: #d9534f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .clearBtn {
+      background: #f0ad4e;
+      margin-right: 10px;
+    }
+    .exportBtn {
+      background: #5bc0de;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>Student Entry Form</h1>
+
+  <form id="studentForm">
+    <div>
+      <label>First Name:</label>
+      <input type="text" id="firstName" required>
+    </div>
+    <div>
+      <label>Last Name:</label>
+      <input type="text" id="lastName" required>
+    </div>
+    <div>
+      <label>Age:</label>
+      <input type="number" id="age" min="1" required>
+    </div>
+    <div>
+      <label>Email:</label>
+      <input type="email" id="email" required>
+    </div>
+    <div>
+      <button type="submit">Add Student</button>
+    </div>
+  </form>
+
+  <button class="clearBtn" id="clearAll">Clear All</button>
+  <button class="exportBtn" id="exportBtn">Export to data.txt</button>
+
+  <h2>Student List</h2>
+  <table id="studentList">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>First</th>
+        <th>Last</th>
+        <th>Age</th>
+        <th>Email</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    class Student {
+      constructor(firstName, lastName, age, email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+        this.email = email;
+      }
+    }
+
+    const students = [];
+    const studentForm = document.getElementById("studentForm");
+    const tbody = document.querySelector("#studentList tbody");
+
+    studentForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const age = parseInt(document.getElementById("age").value, 10);
+      const email = document.getElementById("email").value.trim();
+
+      if (!firstName || !lastName || !email || isNaN(age)) {
+        alert("Please fill out all fields correctly.");
+        return;
+      }
+
+      students.push(new Student(firstName, lastName, age, email));
+      renderList();
+      studentForm.reset();
+    });
+
+    function renderList() {
+      tbody.innerHTML = "";
+
+      students.forEach((stu, index) => {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = index + 1;
+        row.insertCell(1).textContent = stu.firstName;
+        row.insertCell(2).textContent = stu.lastName;
+        row.insertCell(3).textContent = stu.age;
+        row.insertCell(4).textContent = stu.email;
+
+        const actionCell = row.insertCell(5);
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.classList.add("actionBtn");
+        delBtn.onclick = () => {
+          students.splice(index, 1);
+          renderList();
+        };
+        actionCell.appendChild(delBtn);
+      });
+    }
+
+    document.getElementById("clearAll").addEventListener("click", () => {
+      if (confirm("Are you sure you want to clear all students?")) {
+        students.length = 0;
+        renderList();
+      }
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      if (students.length === 0) {
+        alert("No data to export.");
+        return;
+      }
+
+      let text = "STUDENT DATA\n\n";
+      students.forEach((stu, i) => {
+        text += `${i + 1}. ${stu.firstName} ${stu.lastName}, Age: ${stu.age}, Email: ${stu.email}\n`;
+      });
+
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+
+</body>
+</html>
