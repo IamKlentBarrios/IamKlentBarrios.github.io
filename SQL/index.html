@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sports Athlete SQL Database</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        background: #f4f4f4;
+    }
+    h1 {
+        text-align: center;
+    }
+    textarea {
+        width: 100%;
+        height: 120px;
+        font-size: 16px;
+        padding: 10px;
+        margin-top: 10px;
+    }
+    button {
+        padding: 10px 18px;
+        font-size: 15px;
+        margin: 4px;
+        cursor: pointer;
+        background: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 6px;
+    }
+    .quick-btn {
+        background: #4CAF50;
+    }
+    table {
+        margin-top: 25px;
+        border-collapse: collapse;
+        width: 100%;
+        background: white;
+    }
+    th, td {
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Sports Athlete SQL Database</h1>
+
+<h2>Quick Queries</h2>
+
+
+<button class="quick-btn" onclick="quick('SELECT * FROM athletes LIMIT 20;')">Show First 20 Rows</button>
+<button class="quick-btn" onclick="quick('SELECT * FROM athletes WHERE Country = \'South Korea\';')">Korean Athletes</button>
+<button class="quick-btn" onclick="quick('SELECT * FROM athletes WHERE Sport = \'Soccer\';')">Soccer Players</button>
+<button class="quick-btn" onclick="quick('SELECT Name, Age FROM athletes ORDER BY Age DESC LIMIT 10;')">Oldest Athletes</button>
+<button class="quick-btn" onclick="quick('SELECT Name, Age FROM athletes ORDER BY Age LIMIT 10;')">Youngest Athletes</button>
+<button class="quick-btn" onclick="quick('SELECT * FROM athletes WHERE Gender = \'Female\';')">Female Athletes</button>
+<button class="quick-btn" onclick="quick('SELECT * FROM athletes WHERE Sport = \'Basketball\';')">Basketball Players</button>
+<button class="quick-btn" onclick="quick('SELECT * FROM athletes WHERE Age <= 25;')">Age 25 and Under</button>
+<button class="quick-btn" onclick="quick('SELECT Country, COUNT(*) FROM athletes GROUP BY Country;')">Count By Country</button>
+<button class="quick-btn" onclick="quick('SELECT Sport, COUNT(*) FROM athletes GROUP BY Sport;')">Count By Sport</button>
+
+<br><br>
+
+<h2>Enter SQL Query</h2>
+<textarea id="sql-input">SELECT * FROM athletes LIMIT 20;</textarea>
+<br>
+<button onclick="runSQL()">Run SQL</button>
+
+<div id="output"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
+
+<script>
+init();
+
+async function init() {
+    const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}`
+    });
+
+    window.db = new SQL.Database();
+
+    db.exec(`
+        CREATE TABLE athletes (
+            ID INT, Name TEXT, Sport TEXT, Country TEXT,
+            Age INT, Gender TEXT, Team TEXT
+        );
+    `);
+
+    
+    db.exec(`
+INSERT INTO athletes VALUES
+(1,'Lionel Messi','Soccer','Argentina',38,'Male','Inter Miami CF'),
+(2,'Lebron James','Basketball','USA',40,'Male','Los Angeles Lakers'),
+(3,'Stephen Curry','Basketball','USA',37,'Male','Golden State Warriors'),
+(4,'Cristiano Ronaldo','Soccer','Portugal',40,'Male','Al-Nassr FC'),
+(5,'Son Heung-Min','Soccer','South Korea',33,'Male','Los Angeles FC'),
+(6,'Neymar Jr','Soccer','Brazil',33,'Male','Santos FC'),
+(7,'Michael Phelps','Swimming','USA',40,'Male','Retired'),
+(8,'Serena Williams','Tennis','USA',44,'Female','Retired'),
+(9,'Tom Brady','Football','USA',48,'Male','Retired'),
+(10,'Roger Federer','Tennis','Switzerland',44,'Male','Retired'),
+(11,'Simone Biles','Gymnastics','USA',28,'Female','U.S Women''s Gymnastics Team'),
+(12,'Tiger Woods','Golf','USA',49,'Male','Jupiter Links Golf Club'),
+(13,'Usain Bolt','Track','Jamaica',39,'Male','Retired'),
+(14,'Kobe Bryant','Basketball','USA',41,'Male','Retired'),
+(15,'Novak Djokovic','Tennis','Serbia',38,'Male','Serbia'),
+(16,'Rafael Nadal','Tennis','Spain',39,'Male','Retired'),
+(17,'Lewis Hamilton','F1','United Kingdom',40,'Male','Scuderia Ferrari'),
+(18,'Shohei Ohtani','Baseball','Japan',31,'Male','Los Angeles Dodgers'),
+(19,'Yoshinobu Yamamoto','Baseball','Japan',27,'Male','Los Angeles Dodgers'),
+(20,'Park Ji-Sung','Soccer','South Korea',44,'Male','Retired'),
+(21,'Kevin Durant','Basketball','USA',37,'Male','Houston Rockets'),
+(22,'Pele','Soccer','Brazil',82,'Male','Retired'),
+(23,'Diego Maradona','Soccer','Argentina',60,'Male','Retired'),
+(24,'Muhammad Ali','Boxing','USA',74,'Male','Retired'),
+(25,'Michael Jordan','Basketball','USA',62,'Male','Retired'),
+(26,'Conor McGregor','MMA','Ireland',37,'Male','UFC'),
+(27,'Mike Tyson','Boxing','USA',59,'Male','Retired'),
+(28,'Kylian Mbappe','Soccer','France',26,'Male','Real Madrid CF'),
+(29,'Charles Leclerc','F1','Monaco',28,'Male','Scuderia Ferrari'),
+(30,'Max Versteppen','F1','Netherland',28,'Male','Red Bull Racing'),
+(31,'Giannis Antetokounmpo','Basketball','Greece',30,'Male','Milwaukee Bucks'),
+(32,'Ryu Hyun-Jin','Baseball','South Korea',38,'Male','Hanwha Eagles'),
+(33,'Kim Ha-Seong','Baseball','South Korea',30,'Male','Atlanta Braves'),
+(34,'Lee Jung-Hoo','Baseball','South Korea',27,'Male','San Francisco Giants'),
+(35,'Kim Hye-Seong','Baseball','South Korea',26,'Male','Los Angeles Dodgers'),
+(36,'Lee Kang-In','Soccer','South Korea',24,'Male','Paris Saint-Germain F.C'),
+(37,'Aaron Judge','Baseball','USA',33,'Male','New York Yankees'),
+(38,'Kim Yuna','Figure Skating','South Korea',35,'Female','Retired'),
+(39,'Ja Morant','Basketball','USA',26,'Male','Memphis Grizzlies'),
+(40,'Luka Doncic','Basketball','Slovenia',26,'Male','Los Angeles Lakers'),
+(41,'Mohamed Salah','Soccer','Egypt',33,'Male','Liverpool F.C.'),
+(42,'Lamine Yamal','Soccer','Spain',18,'Male','FC Barcelona'),
+(43,'Victor Wembanyama','Basketball','France',21,'Male','San Antonio Spurs'),
+(44,'Pedri','Soccer','Spain',23,'Male','FC Barcelona'),
+(45,'Gavi','Soccer','Spain',21,'Male','FC Barcelona'),
+(46,'Desire Doue','Soccer','France',21,'Male','Paris Saint-Germain F.C'),
+(47,'Raphinha','Soccer','Brazil',28,'Male','FC Barcelona'),
+(48,'Ousmane Dembele','Soccer','France',28,'Male','Paris Saint-Germain F.C'),
+(49,'Jude Bellingham','Soccer','United Kingdom',22,'Male','Real Madrid CF'),
+(50,'Vinicius Junior','Soccer','Brazil',25,'Male','Real Madrid CF'),
+(51,'Robert Lewandowski','Soccer','Poland',37,'Male','FC Barcelona'),
+(52,'Luis Suarez','Soccer','Uruguay',38,'Male','Inter Miami CF'),
+(53,'Luka Modric','Soccer','Croatia',40,'Male','AC Milan'),
+(54,'Rodri','Soccer','Spain',29,'Male','Manchester City F.C.'),
+(55,'Erling Haaland','Soccer','United Kingdom',25,'Male','Manchester City F.C.'),
+(56,'Cooper Flagg','Basketball','USA',18,'Male','Dallas Mavericks'),
+(57,'Nikola Jokic','Basketball','Serbia',30,'Male','Denver Nuggets'),
+(58,'Shai Gilgeous-Alexander','Basketball','Canada',27,'Male','Oklahoma City Thunder'),
+(59,'James Harden','Basketball','USA',36,'Male','LA Clippers'),
+(60,'Anthony Edwards','Basketball','USA',24,'Male','Minnesota Timberwolves'),
+(61,'Tyson Fury','Boxing','United Kingdom',37,'Male','Retired'),
+(62,'Juan Soto','Baseball','Dominican Republic',27,'Male','New York Mets'),
+(63,'Jon Rahm','Golf','Spain',31,'Male','Liv Golf'),
+(64,'Patrick Mahomes','Football','USA',30,'Male','Kansas City Chiefs'),
+(65,'Caitlin Clark','Basketball','USA',23,'Female','Indiana Fever'),
+(66,'Katie Ledeckey','Swimming','USA',28,'Female','United States of America'),
+(67,'Mikaela Shiffrin','Skiing','USA',30,'Female','Stifel U.S. Ski Team'),
+(68,'Allyson Felix','Track','USA',40,'Female','Retired'),
+(69,'Shaun White','Snowboarding','USA',39,'Male','Retired'),
+(70,'Kohei Uchimura','Gymnastics','Japan',36,'Male','Retired'),
+(71,'Yuzuru Hanyu','Figure Skating','Japan',30,'Male','Retired'),
+(72,'Apolo Ohno','Speed Skating','USA',43,'Male','Retired'),
+(73,'Valentina Vezzali','Fencing','Italy',51,'Female','Retired'),
+(74,'Jason Kenny','Cycling','United Kingdom',37,'Male','Retired'),
+(75,'Hilary Knight','Hockey','USA',36,'Female','Seattle Torrent'),
+(76,'Wayne Gretzky','Hockey','Canada',64,'Male','Retired'),
+(77,'Bobby Orr','Hockey','Canada',77,'Male','Retired'),
+(78,'Mario Lemieux','Hockey','Canada',60,'Male','Retired'),
+(79,'Sidney Crosby','Hockey','Canada',38,'Male','Pittsburgh Penguins'),
+(80,'Jaromir Jagr','Hockey','Czechia',53,'Male','Rytíři Kladno'),
+(81,'Sean O''Malley','MMA','USA',31,'Male','UFC'),
+(82,'Khabib Nurmagomedov','MMA','Russia',37,'Male','UFC'),
+(83,'Phil Foden','Soccer','United Kingdom',25,'Male','Manchester City F.C'),
+(84,'Harry Kane','Soccer','United Kingdom',32,'Male','FC Bayern Munich'),
+(85,'Bruno Fernandes','Soccer','Portugal',31,'Male','Manchester United F.C'),
+(86,'Anthony Joshua','Boxing','United Kingdom',36,'Male','Matchroom Boxing'),
+(87,'Frenkie De Jong','Soccer','Netherlands',28,'Male','FC Barcelona'),
+(88,'Hwang Hee-Chan','Soccer','South Korea',29,'Male','Wolverhampton Wanderers F.C.'),
+(89,'Cha Bum-Kun','Soccer','South Korea',72,'Male','Retired'),
+(90,'Alex Pereira','MMA','Brazil',38,'Male','UFC'),
+(91,'Marcus Rashford','Soccer','United Kingdom',28,'Male','FC Barcelona'),
+(92,'Jamal Musiala','Soccer','Germany',22,'Male','FC Bayern Munich'),
+(93,'Alphonso Davies','Soccer','Canada',25,'Male','FC Bayern Munich'),
+(94,'Manuel Neuer','Soccer','Germany',39,'Male','FC Bayern Munich'),
+(95,'Cole Palmer','Soccer','United Kingdom',23,'Male','Chelsea FC'),
+(96,'Kenan Yildiz','Soccer','Turkey',20,'Male','Juventus FC'),
+(97,'Kevin De Bruyne','Soccer','Belgium',34,'Male','SSC Napoli'),
+(98,'Eden Hazard','Soccer','Belgium',34,'Male','Retired'),
+(99,'Antoine Griezmann','Soccer','France',34,'Male','Atletico De Madrid'),
+(100,'Bukayo Saka','Soccer','United Kingdom',24,'Male','Arsenal FC');
+`);
+}
+
+function quick(sql) {
+    document.getElementById("sql-input").value = sql;
+    runSQL();
+}
+
+function runSQL() {
+    const sql = document.getElementById("sql-input").value;
+    let result;
+
+    try {
+        result = db.exec(sql);
+    } catch (e) {
+        document.getElementById("output").innerHTML = "<p style='color:red;'>Error: " + e + "</p>";
+        return;
+    }
+
+    if (result.length === 0) {
+        document.getElementById("output").innerHTML = "<p>No results.</p>";
+        return;
+    }
+
+    let table = "<table><tr>";
+
+    result[0].columns.forEach(col => {
+        table += "<th>" + col + "</th>";
+    });
+
+    table += "</tr>";
+
+    result[0].values.forEach(row => {
+        table += "<tr>";
+        row.forEach(val => {
+            table += "<td>" + val + "</td>";
+        });
+        table += "</tr>";
+    });
+
+    table += "</table>";
+
+    document.getElementById("output").innerHTML = table;
+}
+</script>
+
+</body>
+</html>
