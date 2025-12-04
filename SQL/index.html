@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Athlete Database - SQL</title>
+<title>Athlete Database</title>
 <style>
     body { font-family: Arial, sans-serif; margin: 20px; background:#f8f9fa; }
     h2 { background:#007bff; color:white; padding:8px; border-radius:6px; }
@@ -27,9 +27,8 @@
 </head>
 <body>
 
-<h1>Athlete SQL Database (CSV + Manual Input)</h1>
+<h1>Athlete SQL Database</h1>
 
-<!-- Manual Entry Section -->
 <h2>Manual Entry</h2>
 <label>ID:</label><input type="number" id="ID"><br>
 <label>Name:</label><input type="text" id="Name"><br>
@@ -44,20 +43,17 @@
 <label>Team/Club:</label><input type="text" id="Team"><br>
 <button onclick="addStudent()">+ Add Athlete</button>
 
-<!-- CSV Import -->
-<h2>CSV Import (100 athletes from Google Sheets allowed)</h2>
+<h2>CSV Import</h2>
 <input type="file" id="csvFile"><br>
 <button onclick="importCSV()">Import CSV</button>
 <button onclick="clearAll()">Clear All</button>
 
 <hr>
 
-<!-- SQL Query Box -->
 <h2>Run SQL Query</h2>
 <textarea id="sqlInput" rows="3" cols="50">SELECT * FROM athletes;</textarea><br>
 <button onclick="runQuery()">Run SQL</button>
 
-<!-- Quick Queries -->
 <div id="quickButtons">
 <button onclick="quick('SELECT * FROM athletes;')">All Data</button>
 <button onclick="quick(`SELECT * FROM athletes WHERE Country='South Korea';`)">🇰🇷 Korean Players</button>
@@ -68,7 +64,6 @@
 
 <br><br>
 
-<!-- Output Table -->
 <table id="outputTable"></table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js"></script>
