@@ -2,32 +2,74 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Athlete Database</title>
+<title>🏆 Athlete League Database</title>
+
 <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background:#f8f9fa; }
-    h2 { background:#007bff; color:white; padding:8px; border-radius:6px; }
-    label { display:inline-block; width:130px; font-weight:bold; }
-    input, select, button { margin:5px;}
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: linear-gradient(#006600, #009933);
+        color: white;
+    }
+
+    h1 {
+        background: #000;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 32px;
+    }
+
+    h2 {
+        background: #222;
+        padding: 8px;
+        border-radius: 6px;
+        margin-top: 25px;
+    }
+
+    label { display: inline-block; width: 130px; font-weight: bold; }
+    input, select, textarea {
+        margin: 5px;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    button {
+        background: #ffcc00;
+        color: black;
+        padding: 10px 14px;
+        margin: 5px;
+        border: none;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #ffee58;
+    }
+
     #outputTable, th, td {
-        border: 1px solid black;
+        border: 1px solid white;
         border-collapse: collapse;
         padding: 5px;
+        background: rgba(0,0,0,0.3);
     }
+
+    th {
+        background: #000;
+    }
+
     #quickButtons button {
-        margin: 3px;
-        background:#343a40;
-        color:white;
-        border-radius:4px;
-        border:none;
-        padding:6px 10px;
-        cursor:pointer;
+        background: #333;
+        color: white;
     }
-    #quickButtons button:hover { background:#495057 }
 </style>
+
 </head>
 <body>
 
-<h1>Athlete SQL Database</h1>
+<h1>⚽ Athlete League Database</h1>
 
 <h2>Manual Entry</h2>
 <label>ID:</label><input type="number" id="ID"><br>
@@ -40,26 +82,25 @@
     <option value="Male">Male</option>
     <option value="Female">Female</option>
 </select><br>
-<label>Team/Club:</label><input type="text" id="Team"><br>
-<button onclick="addStudent()">+ Add Athlete</button>
+<label>Team/Club:</label><input type="text" id="TeamClub"><br>
+<button onclick="addAthlete()">+ Add Athlete</button>
 
 <h2>CSV Import</h2>
 <input type="file" id="csvFile"><br>
 <button onclick="importCSV()">Import CSV</button>
 <button onclick="clearAll()">Clear All</button>
 
-<hr>
-
 <h2>Run SQL Query</h2>
-<textarea id="sqlInput" rows="3" cols="50">SELECT * FROM athletes;</textarea><br>
+<textarea id="sqlInput" rows="3" cols="60">SELECT * FROM athletes;</textarea><br>
 <button onclick="runQuery()">Run SQL</button>
 
 <div id="quickButtons">
-<button onclick="quick('SELECT * FROM athletes;')">All Data</button>
-<button onclick="quick(`SELECT * FROM athletes WHERE Country='South Korea';`)">🇰🇷 Korean Players</button>
-<button onclick="quick(`SELECT Name,Age FROM athletes WHERE Age<=25 ORDER BY Age;`)">Young Athletes</button>
-<button onclick="quick(`SELECT Sport,COUNT(*) FROM athletes GROUP BY Sport;`)">Sport Counts</button>
-<button onclick="quick(`SELECT * FROM athletes ORDER BY Age DESC LIMIT 5;`)">Oldest 5</button>
+<button onclick="quick('SELECT * FROM athletes;')">Show All</button>
+<button onclick="quick(`SELECT * FROM athletes WHERE Country='South Korea';`)">🇰🇷 Korean Athletes</button>
+<button onclick="quick(`SELECT Name,Age FROM athletes WHERE Age <= 25 ORDER BY Age;`)">Young Stars</button>
+<button onclick="quick(`SELECT Sport, COUNT(*) as Count FROM athletes GROUP BY Sport;`)">Sport Stats</button>
+<button onclick="quick(`SELECT * FROM athletes ORDER BY Age DESC LIMIT 5;`)">Oldest Players</button>
+<button onclick="quick(`SELECT TeamClub, COUNT(*) FROM athletes GROUP BY TeamClub ORDER BY COUNT(*) DESC LIMIT 5;`)">Top Clubs</button>
 </div>
 
 <br><br>
@@ -73,11 +114,11 @@ let db;
 initDB();
 
 async function initDB() {
-    const SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}` });
+    const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
     db = new SQL.Database();
     db.run(`CREATE TABLE athletes (
         ID INTEGER, Name TEXT, Sport TEXT, Country TEXT,
-        Age INTEGER, Gender TEXT, Team TEXT
+        Age INTEGER, Gender TEXT, TeamClub TEXT
     );`);
 }
 
@@ -87,22 +128,25 @@ function quick(sql) {
 }
 
 function runQuery() {
-    const sql = document.getElementById("sqlInput").value;
-    const result = db.exec(sql);
-    displayResult(result);
+    try {
+        const result = db.exec(document.getElementById("sqlInput").value);
+        displayResult(result);
+    } catch(e) {
+        alert("SQL ERROR:\n" + e.message);
+    }
 }
 
 function displayResult(result) {
     const table = document.getElementById("outputTable");
     table.innerHTML = "";
     if (!result.length) return;
-    const cols = result[0].columns;
-    const rows = result[0].values;
-    let headerRow = "<tr>";
-    cols.forEach(c => headerRow += `<th>${c}</th>`);
-    headerRow += "</tr>";
-    table.innerHTML += headerRow;
-    rows.forEach(row => {
+    const columns = result[0].columns;
+    const values = result[0].values;
+    let header = "<tr>";
+    columns.forEach(col => header += `<th>${col}</th>`);
+    header += "</tr>";
+    table.innerHTML = header;
+    values.forEach(row => {
         let tr = "<tr>";
         row.forEach(col => tr += `<td>${col}</td>`);
         tr += "</tr>";
@@ -110,28 +154,30 @@ function displayResult(result) {
     });
 }
 
-function addStudent() {
-    const fields = ["ID","Name","Sport","Country","Age","Gender","Team"];
-    let vals = fields.map(id => document.getElementById(id).value);
-    db.run(`INSERT INTO athletes VALUES (?,?,?,?,?,?,?)`, vals);
+function addAthlete() {
+    const fields = ["ID","Name","Sport","Country","Age","Gender","TeamClub"];
+    const vals = fields.map(i => document.getElementById(i).value);
+    if (!vals[0] || !vals[1]) return alert("ID and Name required");
+    db.run("INSERT INTO athletes VALUES (?,?,?,?,?,?,?)", vals);
     runQuery();
 }
 
 function clearAll() {
+    if (!confirm("Are you sure?")) return;
     db.run("DELETE FROM athletes;");
     runQuery();
 }
 
 function importCSV() {
     const file = document.getElementById("csvFile").files[0];
-    if (!file) return alert("Select a CSV file first!");
+    if (!file) return alert("Select CSV first!");
     const reader = new FileReader();
     reader.onload = () => {
-        const lines = reader.result.split("\n").slice(1);
-        lines.forEach(line => {
-            const [ID,Name,Sport,Country,Age,Gender,Team] = line.split(",");
-            if(ID) db.run(`INSERT INTO athletes VALUES (?,?,?,?,?,?,?)`, 
-                [ID,Name,Sport,Country,Age,Gender,Team]);
+        const rows = reader.result.split("\n").slice(1);
+        rows.forEach(line => {
+            const [ID,Name,Sport,Country,Age,Gender,TeamClub] = line.split(",");
+            if(ID) db.run(`INSERT INTO athletes VALUES (?,?,?,?,?,?,?)`,
+                [ID,Name,Sport,Country,Age,Gender,TeamClub]);
         });
         runQuery();
     };
@@ -142,3 +188,4 @@ function importCSV() {
 
 </body>
 </html>
+
