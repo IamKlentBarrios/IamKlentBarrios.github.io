@@ -172,7 +172,6 @@
     .switchRow span{color:var(--text); font-size:13px}
     .switchRow small{color:var(--muted)}
 
-    /* Buttons with hover + pressed effect */
     .btnRow{
       display:flex;
       gap:10px;
@@ -412,7 +411,7 @@
         </div>
       </section>
 
-      <!-- RIGHT: Output -->
+      
       <section class="card">
         <div class="cardHeader">
           <h2>Results</h2>
@@ -475,7 +474,7 @@
   </div>
 
   <script>
-    // ---------- Tiny click sound using WebAudio (no mp3 needed) ----------
+    
     function playClickSound(){
       try{
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -492,7 +491,7 @@
       }catch(e){/* ignore */}
     }
 
-    // ---------- DOM ----------
+    
     const elName = document.getElementById("athleteName");
     const elAge = document.getElementById("age");
     const elSport = document.getElementById("sport");
@@ -526,7 +525,7 @@
     const logBody = document.getElementById("logBody");
     const debugBox = document.getElementById("debugBox");
 
-    // live labels
+    
     function syncSliders(){
       talentVal.innerText = elTalent.value;
       trainingVal.innerText = elTraining.value;
@@ -535,7 +534,6 @@
     [elTalent, elTraining, elRisk].forEach(s => s.addEventListener("input", syncSliders));
     syncSliders();
 
-    // ---------- Utilities ----------
     function showError(msg){
       errorBox.style.display = "block";
       errorBox.innerText = msg;
@@ -551,8 +549,7 @@
     function fmtMoney(n){
       return "$" + n.toLocaleString(undefined, {maximumFractionDigits:0});
     }
-
-    // ---------- Model (Objects/Arrays) ----------
+    
     const SPORT_PROFILES = {
       Soccer:     { basePay: 550000, peakAge: 27, retireAge: 38, trophyBias: 1.00 },
       Basketball: { basePay: 650000, peakAge: 28, retireAge: 38, trophyBias: 0.95 },
@@ -564,7 +561,6 @@
       Hockey:     { basePay: 500000, peakAge: 28, retireAge: 38, trophyBias: 0.85 },
     };
 
-    // ---------- Core simulation ----------
     function simulateCareer(profile){
       const sportMeta = SPORT_PROFILES[profile.sport];
 
@@ -618,8 +614,7 @@
         const randomness = randFloat(-2.1, 2.1);
         let performance = (profile.talent * 1.25 + trainingBoost + randomness - fatigue) * ageFactor * safeMod;
 
-        // injury probability
-        // risk increases injury chance, high training increases injury chance, playSafe decreases it, high talent slightly decreases
+       
         let injuryChance =
           0.05 +
           (profile.risk * 0.03) +
@@ -637,20 +632,19 @@
         if (injured){
           injuryCount++;
           event = "Injury";
-          // injury reduces performance and increases fatigue
+          
           performance *= 0.62;
           fatigue += 0.8;
           fatigue = clamp(fatigue, 0, 4.2);
           notes = `Injury setback (injuries: ${injuryCount}/3)`;
         } else {
-          // recovery reduces fatigue a bit
+      
           fatigue -= 0.22;
           fatigue = clamp(fatigue, 0, 4.2);
           notes = "Healthy season";
         }
 
-        // Trophy chance based on performance, sport bias, plus randomness
-        // performance scale roughly: 0..~16
+       
         let trophyChance = (performance / 18) * 0.40 * sportMeta.trophyBias;
         trophyChance = clamp(trophyChance, 0.02, 0.25);
 
@@ -661,14 +655,12 @@
           notes += wonTrophy ? " • Won a major trophy" : "";
         }
 
-        // Earnings scale by performance and popularity effect
-        // higher trophies increase future earnings multiplier
+      
         const fameMultiplier = 1 + trophies * 0.06;
         const perfMultiplier = clamp(performance / 10, 0.4, 1.8);
         const seasonPay = sportMeta.basePay * perfMultiplier * fameMultiplier;
         earnings += seasonPay;
 
-        // Log object
         logs.push({
           season: seasonNumber,
           age: age,
@@ -682,7 +674,7 @@
           seasonPay: seasonPay
         });
 
-        // next season
+       
         age++;
       }
 
@@ -696,7 +688,7 @@
 
       const careerScore = clamp(Math.round(scoreRaw), 0, 100);
 
-      // tier
+
       let tier = "Developing";
       let tierDesc = "Some success, room to grow.";
       if (careerScore >= 85){ tier = "Legend"; tierDesc = "Elite career with major achievements."; }
@@ -718,7 +710,7 @@
       };
     }
 
-    // ---------- Render ----------
+
     function renderResult(result){
       statusHint.innerText = `Simulation complete for ${result.profile.name || "Athlete"} (${result.profile.sport})`;
 
@@ -734,7 +726,7 @@
       scoreText.innerText = result.careerScore + " / 100";
       scoreBar.style.width = result.careerScore + "%";
 
-      // debug info
+
       if (result.profile.showDebug){
         debugBox.style.display = "block";
         const last = result.logs[result.logs.length - 1];
@@ -750,7 +742,7 @@
         debugBox.style.display = "none";
       }
 
-      // table
+
       logBody.innerHTML = "";
       for (const row of result.logs){
         const perf = clamp(row.performance, 0, 20);
@@ -774,11 +766,9 @@
       }
       logTable.style.display = "table";
 
-      // store last result globally for export
       window.__lastResult = result;
     }
 
-    // ---------- Validation ----------
     function readInputs(){
       const name = (elName.value || "").trim();
       const startAge = parseInt(elAge.value, 10);
@@ -816,7 +806,6 @@
       };
     }
 
-    // ---------- Export ----------
     function exportTxt(){
       const r = window.__lastResult;
       if (!r){
@@ -860,7 +849,6 @@
       URL.revokeObjectURL(url);
     }
 
-    // ---------- Reset ----------
     function resetAll(){
       clearError();
       statusHint.innerText = "No simulation yet";
@@ -881,7 +869,6 @@
       window.__lastResult = null;
     }
 
-    // ---------- Events ----------
     simulateBtn.addEventListener("click", () => {
       playClickSound();
       clearError();
@@ -892,7 +879,6 @@
         return;
       }
 
-      // Build athlete object
       const athlete = {
         name: inputs.data.name,
         startAge: inputs.data.startAge,
