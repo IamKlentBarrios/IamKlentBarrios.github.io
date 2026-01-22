@@ -3,12 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Interactive Sports Career Simulator</title>
+
+  <!--
+    CT Culminating Project
+    Student: Sean Lee
+    Project: Interactive Sports Career Simulator
+
+    Notes:
+    - Started with a basic season loop
+    - Added injuries and trophies later
+    - Focused on probability and conditionals
+    - UI was improved after logic worked
+  -->
+
+  <title>Sports Career Simulator</title>
+
   <style>
+    /* --- basic colour variables --- */
     :root{
       --bg:#0b1220;
       --card:#0f1a31;
-      --card2:#111f3a;
       --text:#e9eefc;
       --muted:#a9b6d6;
       --accent:#38bdf8;
@@ -16,897 +30,271 @@
       --warn:#f59e0b;
       --bad:#ef4444;
       --line:rgba(255,255,255,.12);
-      --shadow: 0 16px 40px rgba(0,0,0,.35);
-      --radius: 18px;
+      --radius:18px;
     }
 
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box }
+
     body{
       margin:0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: radial-gradient(1200px 700px at 20% 0%, #1b2a55 0%, var(--bg) 55%);
+      font-family: Arial, Helvetica, sans-serif;
+      background:#0b1220;
       color:var(--text);
-      min-height:100vh;
-      padding:28px 16px 60px;
+      padding:24px;
     }
 
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-    }
+    h1{ margin:0 0 6px 0; }
 
-    header{
-      display:flex;
-      gap:14px;
-      align-items:flex-start;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      margin-bottom:18px;
-    }
-
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    h1{
-      margin:0;
-      font-size:28px;
-      letter-spacing:.3px;
-    }
-    .subtitle{
-      color:var(--muted);
-      max-width:780px;
-      line-height:1.35;
-      font-size:14px;
-    }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:10px 12px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      background: rgba(255,255,255,.06);
-      color:var(--muted);
-      font-size:13px;
-      white-space:nowrap;
+    .container{
+      max-width:1050px;
+      margin:auto;
     }
 
     .grid{
       display:grid;
-      grid-template-columns: 390px 1fr;
+      grid-template-columns:380px 1fr;
       gap:16px;
-      align-items:start;
     }
 
-    @media (max-width: 920px){
-      .grid{grid-template-columns:1fr}
+    @media(max-width:900px){
+      .grid{ grid-template-columns:1fr; }
     }
 
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.03) 100%);
       border:1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
+      border-radius:var(--radius);
+      padding:16px;
+      background:#0f1a31;
     }
-
-    .cardHeader{
-      padding:16px 16px 0;
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .cardHeader h2{
-      margin:0;
-      font-size:16px;
-      letter-spacing:.2px;
-    }
-    .cardHeader .hint{
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:2px;
-    }
-
-    .cardBody{padding:16px;}
 
     label{
       display:block;
-      color:var(--muted);
       font-size:12px;
-      margin:12px 0 6px;
+      color:var(--muted);
+      margin-top:12px;
     }
 
-    input[type="text"], input[type="number"], select{
+    input, select{
       width:100%;
-      padding:12px 12px;
-      border-radius:12px;
+      padding:10px;
+      margin-top:4px;
+      border-radius:10px;
       border:1px solid var(--line);
-      outline:none;
-      background: rgba(0,0,0,.25);
+      background:#0b1220;
       color:var(--text);
-      font-size:14px;
     }
 
     input[type="range"]{
-      width:100%;
-      accent-color: var(--accent);
+      accent-color:var(--accent);
     }
 
-    .row2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-
-    .row3{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:12px;
-    }
-
-    .mini{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      color:var(--muted);
-      font-size:12px;
-      margin-top:6px;
-    }
-
-    .switchRow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      margin-top:10px;
-      padding:10px 12px;
-      border:1px solid var(--line);
-      border-radius:12px;
-      background: rgba(0,0,0,.18);
-    }
-    .switchRow input{transform:scale(1.15)}
-    .switchRow span{color:var(--text); font-size:13px}
-    .switchRow small{color:var(--muted)}
-
-    .btnRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:16px;
-    }
-    .btn{
+    button{
+      margin-top:12px;
+      padding:10px 14px;
       border:none;
-      cursor:pointer;
-      border-radius:14px;
-      padding:12px 16px;
-      font-weight:600;
-      font-size:14px;
-      color:#04121c;
-      background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 100%);
-      box-shadow: 0 8px rgba(56,189,248,.22);
-      transition: transform .08s ease, box-shadow .08s ease, filter .2s ease;
-      user-select:none;
-    }
-    .btn:hover{filter:brightness(1.07)}
-    .btn:active{
-      transform: translateY(3px);
-      box-shadow: 0 5px rgba(56,189,248,.15);
-    }
-
-    .btn.secondary{
-      color:var(--text);
-      background: rgba(255,255,255,.06);
-      border:1px solid var(--line);
-      box-shadow:none;
-    }
-    .btn.secondary:hover{background: rgba(255,255,255,.09)}
-    .btn.danger{
-      color:#fff;
-      background: linear-gradient(180deg, #fb7185 0%, #ef4444 100%);
-      box-shadow: 0 8px rgba(239,68,68,.22);
-    }
-
-    .error{
-      display:none;
-      margin-top:12px;
-      padding:10px 12px;
       border-radius:12px;
-      border:1px solid rgba(239,68,68,.35);
-      background: rgba(239,68,68,.12);
-      color:#ffd0d0;
-      font-size:13px;
-      line-height:1.35;
+      background:#38bdf8;
+      cursor:pointer;
+      font-weight:bold;
     }
 
-    .kpiRow{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:10px;
+    button.secondary{
+      background:#1e293b;
+      color:white;
     }
-    @media (max-width: 920px){
-      .kpiRow{grid-template-columns: repeat(2, 1fr);}
-    }
-    .kpi{
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-      background: rgba(0,0,0,.20);
-    }
-    .kpi .k{color:var(--muted); font-size:12px}
-    .kpi .v{font-size:18px; font-weight:800; margin-top:6px}
-    .kpi .s{color:var(--muted); font-size:12px; margin-top:4px}
 
-    .meter{
-      margin-top:12px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-      background: rgba(0,0,0,.20);
-    }
-    .meterTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:8px;
-    }
-    .bar{
-      height:12px;
-      width:100%;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      overflow:hidden;
-    }
-    .bar > div{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, #22c55e 0%, #38bdf8 60%, #f59e0b 100%);
-      border-radius:999px;
-      transition: width .25s ease;
+    button.danger{
+      background:#ef4444;
+      color:white;
     }
 
     table{
       width:100%;
       border-collapse:collapse;
       margin-top:12px;
-      overflow:hidden;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background: rgba(0,0,0,.18);
-    }
-    th, td{
-      padding:10px 10px;
-      border-bottom:1px solid rgba(255,255,255,.08);
       font-size:13px;
-      text-align:left;
-      color:var(--text);
     }
-    th{
-      color:var(--muted);
-      font-weight:700;
-      font-size:12px;
-      background: rgba(255,255,255,.06);
+
+    th, td{
+      border-bottom:1px solid var(--line);
+      padding:8px;
     }
-    tr:last-child td{border-bottom:none}
+
+    th{ color:var(--muted); }
 
     .badge{
-      display:inline-block;
-      padding:4px 10px;
-      border-radius:999px;
+      padding:3px 8px;
+      border-radius:12px;
       font-size:12px;
-      font-weight:700;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
     }
-    .badge.good{border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.12)}
-    .badge.warn{border-color: rgba(245,158,11,.45); background: rgba(245,158,11,.12)}
-    .badge.bad{border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.12)}
 
-    .footerNote{
-      color:var(--muted);
-      font-size:12px;
+    .good{ background:#14532d; }
+    .warn{ background:#78350f; }
+    .bad{ background:#7f1d1d; }
+
+    .error{
+      display:none;
       margin-top:10px;
-      line-height:1.4;
+      color:#fecaca;
+      font-size:13px;
     }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <div class="title">
-        <h1>Interactive Sports Career Simulator</h1>
-        <div class="subtitle">
-          Build an athlete profile, then simulate a career season-by-season. The simulator uses <b>probability</b>, <b>conditional logic</b>,
-          and <b>random outcomes</b> to show how training, talent, and injury risk can change a career.
-        </div>
-      </div>
-      <div class="pill">HTML • CSS • JavaScript • Objects • Arrays • Loops • Random</div>
-    </header>
+<div class="container">
+  <h1>Sports Career Simulator</h1>
+  <p style="color:#a9b6d6;font-size:14px;">
+    This program simulates an athlete's career using random probability,
+    conditionals, loops, and user input.
+  </p>
 
-    <div class="grid">
-      <!-- LEFT: Inputs -->
-      <section class="card">
-        <div class="cardHeader">
-          <h2>Athlete Setup</h2>
-          <div class="hint">Enter values, then click “Simulate Career”</div>
-        </div>
-        <div class="cardBody">
+  <div class="grid">
 
-          <label for="athleteName">Athlete Name</label>
-          <input id="athleteName" type="text" placeholder="e.g., Sean Lee" />
+    <!-- INPUT SIDE -->
+    <div class="card">
+      <h3>Athlete Setup</h3>
 
-          <div class="row2">
-            <div>
-              <label for="age">Starting Age</label>
-              <input id="age" type="number" min="12" max="45" value="18" />
-            </div>
-            <div>
-              <label for="sport">Sport</label>
-              <select id="sport">
-                <option value="Soccer">Soccer</option>
-                <option value="Basketball">Basketball</option>
-                <option value="Tennis">Tennis</option>
-                <option value="F1">F1</option>
-                <option value="Boxing">Boxing</option>
-                <option value="Swimming">Swimming</option>
-                <option value="Track">Track</option>
-                <option value="Hockey">Hockey</option>
-              </select>
-            </div>
-          </div>
+      <label>Name</label>
+      <input id="name" placeholder="Sean Lee">
 
-          <div class="row3">
-            <div>
-              <label for="talent">Talent (1–10)</label>
-              <input id="talent" type="range" min="1" max="10" value="6" />
-              <div class="mini"><span>Low</span><span id="talentVal">6</span><span>Elite</span></div>
-            </div>
-            <div>
-              <label for="training">Training Intensity (1–10)</label>
-              <input id="training" type="range" min="1" max="10" value="7" />
-              <div class="mini"><span>Light</span><span id="trainingVal">7</span><span>Hard</span></div>
-            </div>
-            <div>
-              <label for="risk">Injury Risk (1–10)</label>
-              <input id="risk" type="range" min="1" max="10" value="4" />
-              <div class="mini"><span>Safe</span><span id="riskVal">4</span><span>Risky</span></div>
-            </div>
-          </div>
+      <label>Starting Age</label>
+      <input id="age" type="number" value="18">
 
-          <div class="switchRow">
-            <input id="playSafe" type="checkbox" />
-            <div>
-              <span>Play Safe Mode</span><br/>
-              <small>Less performance upside, lower injury chance</small>
-            </div>
-          </div>
+      <label>Sport</label>
+      <select id="sport">
+        <option>Soccer</option>
+        <option>Basketball</option>
+        <option>Tennis</option>
+        <option>Hockey</option>
+      </select>
 
-          <div class="switchRow">
-            <input id="showDebug" type="checkbox" />
-            <div>
-              <span>Show Probability Details (Debug)</span><br/>
-              <small>Displays internal chance calculations</small>
-            </div>
-          </div>
+      <label>Talent (1–10)</label>
+      <input id="talent" type="range" min="1" max="10" value="6">
 
-          <div class="btnRow">
-            <button class="btn" id="simulateBtn">Simulate Career</button>
-            <button class="btn secondary" id="exportBtn">Export Results (.txt)</button>
-            <button class="btn danger" id="resetBtn">Reset</button>
-          </div>
+      <label>Training (1–10)</label>
+      <input id="training" type="range" min="1" max="10" value="7">
 
-          <div class="error" id="errorBox"></div>
+      <label>Injury Risk (1–10)</label>
+      <input id="risk" type="range" min="1" max="10" value="4">
 
-          <div class="footerNote">
-            Tip: Higher training increases performance but also fatigue/injury risk. Talent helps performance every season.
-          </div>
-        </div>
-      </section>
+      <button onclick="runSim()">Simulate Career</button>
+      <button class="secondary" onclick="resetSim()">Reset</button>
 
-      
-      <section class="card">
-        <div class="cardHeader">
-          <h2>Results</h2>
-          <div class="hint" id="statusHint">No simulation yet</div>
-        </div>
-        <div class="cardBody">
-
-          <div class="kpiRow">
-            <div class="kpi">
-              <div class="k">Career Tier</div>
-              <div class="v" id="tier">—</div>
-              <div class="s" id="tierSub">—</div>
-            </div>
-            <div class="kpi">
-              <div class="k">Seasons Played</div>
-              <div class="v" id="seasons">—</div>
-              <div class="s" id="retireReason">—</div>
-            </div>
-            <div class="kpi">
-              <div class="k">Trophies</div>
-              <div class="v" id="trophies">—</div>
-              <div class="s">Championship/major wins</div>
-            </div>
-            <div class="kpi">
-              <div class="k">Career Earnings</div>
-              <div class="v" id="earnings">—</div>
-              <div class="s">Estimated (simulated)</div>
-            </div>
-          </div>
-
-          <div class="meter">
-            <div class="meterTop">
-              <div>Career Score</div>
-              <div id="scoreText">—</div>
-            </div>
-            <div class="bar"><div id="scoreBar"></div></div>
-            <div class="footerNote" id="debugBox" style="display:none; margin-top:10px;"></div>
-          </div>
-
-          <table id="logTable" style="display:none;">
-            <thead>
-              <tr>
-                <th>Season</th>
-                <th>Age</th>
-                <th>Performance</th>
-                <th>Event</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody id="logBody"></tbody>
-          </table>
-
-          <div class="footerNote" style="margin-top:12px;">
-            Performance is calculated using talent + training + randomness, then adjusted by injuries and age.
-          </div>
-
-        </div>
-      </section>
+      <div id="error" class="error"></div>
     </div>
+
+    <!-- OUTPUT SIDE -->
+    <div class="card">
+      <h3>Results</h3>
+
+      <p><b>Career Tier:</b> <span id="tier">—</span></p>
+      <p><b>Seasons Played:</b> <span id="seasons">—</span></p>
+      <p><b>Trophies:</b> <span id="trophies">—</span></p>
+
+      <table id="logTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>Season</th>
+            <th>Age</th>
+            <th>Performance</th>
+            <th>Event</th>
+          </tr>
+        </thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+
   </div>
+</div>
 
-  <script>
-    
-    function playClickSound(){
-      try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = "square";
-        o.frequency.setValueAtTime(520, ctx.currentTime);
-        g.gain.setValueAtTime(0.06, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
-        o.connect(g); g.connect(ctx.destination);
-        o.start();
-        o.stop(ctx.currentTime + 0.09);
-        setTimeout(()=>ctx.close(), 120);
-      }catch(e){/* ignore */}
+<script>
+/*
+  Core idea:
+  - Loop through seasons
+  - Calculate performance
+  - Random injury chance
+  - Stop when retired
+*/
+
+function runSim(){
+  document.getElementById("error").style.display="none";
+
+  let age = parseInt(document.getElementById("age").value);
+  let talent = parseInt(document.getElementById("talent").value);
+  let training = parseInt(document.getElementById("training").value);
+  let risk = parseInt(document.getElementById("risk").value);
+
+  if(age < 12 || age > 45){
+    showError("Age must be between 12 and 45");
+    return;
+  }
+
+  let seasons = 0;
+  let trophies = 0;
+  let injuries = 0;
+
+  const log = document.getElementById("log");
+  log.innerHTML = "";
+
+  while(age < 38 && injuries < 3){
+    seasons++;
+
+    let performance =
+      talent * 1.2 +
+      training * 0.5 +
+      (Math.random()*4 - 2);
+
+    let injuryChance = 0.05 + risk*0.03;
+    let injured = Math.random() < injuryChance;
+
+    let event = "Normal";
+
+    if(injured){
+      injuries++;
+      performance *= 0.6;
+      event = "Injury";
     }
 
-    
-    const elName = document.getElementById("athleteName");
-    const elAge = document.getElementById("age");
-    const elSport = document.getElementById("sport");
-    const elTalent = document.getElementById("talent");
-    const elTraining = document.getElementById("training");
-    const elRisk = document.getElementById("risk");
-    const elPlaySafe = document.getElementById("playSafe");
-    const elShowDebug = document.getElementById("showDebug");
-
-    const talentVal = document.getElementById("talentVal");
-    const trainingVal = document.getElementById("trainingVal");
-    const riskVal = document.getElementById("riskVal");
-
-    const simulateBtn = document.getElementById("simulateBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const exportBtn = document.getElementById("exportBtn");
-
-    const errorBox = document.getElementById("errorBox");
-
-    const statusHint = document.getElementById("statusHint");
-    const tierOut = document.getElementById("tier");
-    const tierSub = document.getElementById("tierSub");
-    const seasonsOut = document.getElementById("seasons");
-    const retireReason = document.getElementById("retireReason");
-    const trophiesOut = document.getElementById("trophies");
-    const earningsOut = document.getElementById("earnings");
-    const scoreText = document.getElementById("scoreText");
-    const scoreBar = document.getElementById("scoreBar");
-
-    const logTable = document.getElementById("logTable");
-    const logBody = document.getElementById("logBody");
-    const debugBox = document.getElementById("debugBox");
-
-    
-    function syncSliders(){
-      talentVal.innerText = elTalent.value;
-      trainingVal.innerText = elTraining.value;
-      riskVal.innerText = elRisk.value;
-    }
-    [elTalent, elTraining, elRisk].forEach(s => s.addEventListener("input", syncSliders));
-    syncSliders();
-
-    function showError(msg){
-      errorBox.style.display = "block";
-      errorBox.innerText = msg;
-    }
-    function clearError(){
-      errorBox.style.display = "none";
-      errorBox.innerText = "";
-    }
-    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
-    function randFloat(min, max){ return Math.random() * (max - min) + min; }
-    function randInt(min, max){ return Math.floor(randFloat(min, max + 1)); }
-
-    function fmtMoney(n){
-      return "$" + n.toLocaleString(undefined, {maximumFractionDigits:0});
-    }
-    
-    const SPORT_PROFILES = {
-      Soccer:     { basePay: 550000, peakAge: 27, retireAge: 38, trophyBias: 1.00 },
-      Basketball: { basePay: 650000, peakAge: 28, retireAge: 38, trophyBias: 0.95 },
-      Tennis:     { basePay: 500000, peakAge: 27, retireAge: 36, trophyBias: 0.90 },
-      F1:         { basePay: 800000, peakAge: 30, retireAge: 40, trophyBias: 0.85 },
-      Boxing:     { basePay: 450000, peakAge: 29, retireAge: 38, trophyBias: 0.80 },
-      Swimming:   { basePay: 220000, peakAge: 24, retireAge: 34, trophyBias: 0.70 },
-      Track:      { basePay: 200000, peakAge: 24, retireAge: 33, trophyBias: 0.65 },
-      Hockey:     { basePay: 500000, peakAge: 28, retireAge: 38, trophyBias: 0.85 },
-    };
-
-    function simulateCareer(profile){
-      const sportMeta = SPORT_PROFILES[profile.sport];
-
-      // career state
-      let age = profile.startAge;
-      let seasons = 0;
-      let trophies = 0;
-      let earnings = 0;
-
-      let fatigue = 0;       // grows with training, reduces performance
-      let injuryCount = 0;
-      let retiredReason = "—";
-
-      // season logs (array of objects)
-      const logs = [];
-
-      // run until retirement condition
-      while (true){
-        if (age >= sportMeta.retireAge){
-          retiredReason = `Reached typical retirement age for ${profile.sport}`;
-          break;
-        }
-        if (age >= 45){
-          retiredReason = "Age limit reached";
-          break;
-        }
-        if (injuryCount >= 3){
-          retiredReason = "Early retirement due to repeated injuries";
-          break;
-        }
-
-        seasons++;
-        const seasonNumber = seasons;
-
-        // age factor (peak then decline)
-        const peak = sportMeta.peakAge;
-        const ageDelta = age - peak;
-        // value decreases as you move away from peak age
-        let ageFactor = 1 - (Math.abs(ageDelta) * 0.035);
-        ageFactor = clamp(ageFactor, 0.55, 1.10);
-
-        // training gives performance boost but increases fatigue
-        const trainingBoost = profile.training * 0.55;
-        fatigue += profile.training * 0.12;
-        fatigue = clamp(fatigue, 0, 4.2);
-
-        // play safe reduces upside and injury chance
-        const safeMod = profile.playSafe ? 0.88 : 1.00;
-
-        // base performance is talent + training + randomness - fatigue
-        const randomness = randFloat(-2.1, 2.1);
-        let performance = (profile.talent * 1.25 + trainingBoost + randomness - fatigue) * ageFactor * safeMod;
-
-       
-        let injuryChance =
-          0.05 +
-          (profile.risk * 0.03) +
-          (profile.training * 0.012) -
-          (profile.talent * 0.006) -
-          (profile.playSafe ? 0.035 : 0);
-
-        injuryChance = clamp(injuryChance, 0.04, 0.55);
-
-        const injured = Math.random() < injuryChance;
-
-        let event = "Normal Season";
-        let notes = "";
-
-        if (injured){
-          injuryCount++;
-          event = "Injury";
-          
-          performance *= 0.62;
-          fatigue += 0.8;
-          fatigue = clamp(fatigue, 0, 4.2);
-          notes = `Injury setback (injuries: ${injuryCount}/3)`;
-        } else {
-      
-          fatigue -= 0.22;
-          fatigue = clamp(fatigue, 0, 4.2);
-          notes = "Healthy season";
-        }
-
-       
-        let trophyChance = (performance / 18) * 0.40 * sportMeta.trophyBias;
-        trophyChance = clamp(trophyChance, 0.02, 0.25);
-
-        const wonTrophy = Math.random() < trophyChance;
-        if (wonTrophy){
-          trophies++;
-          event = injured ? "Injury + Trophy Run" : "Trophy";
-          notes += wonTrophy ? " • Won a major trophy" : "";
-        }
-
-      
-        const fameMultiplier = 1 + trophies * 0.06;
-        const perfMultiplier = clamp(performance / 10, 0.4, 1.8);
-        const seasonPay = sportMeta.basePay * perfMultiplier * fameMultiplier;
-        earnings += seasonPay;
-
-        logs.push({
-          season: seasonNumber,
-          age: age,
-          performance: performance,
-          injured: injured,
-          wonTrophy: wonTrophy,
-          event: event,
-          notes: notes,
-          injuryChance: injuryChance,
-          trophyChance: trophyChance,
-          seasonPay: seasonPay
-        });
-
-       
-        age++;
-      }
-
-      // career score (0..100)
-      const avgPerf = logs.length ? logs.reduce((a,x)=>a+x.performance,0)/logs.length : 0;
-      const scoreRaw =
-        (avgPerf * 5.2) +
-        (trophies * 9) +
-        (Math.min(seasons, 25) * 1.8) -
-        (injuryCount * 6);
-
-      const careerScore = clamp(Math.round(scoreRaw), 0, 100);
-
-
-      let tier = "Developing";
-      let tierDesc = "Some success, room to grow.";
-      if (careerScore >= 85){ tier = "Legend"; tierDesc = "Elite career with major achievements."; }
-      else if (careerScore >= 70){ tier = "Star"; tierDesc = "Strong career with notable impact."; }
-      else if (careerScore >= 55){ tier = "Pro"; tierDesc = "Solid professional career."; }
-      else if (careerScore >= 40){ tier = "Role Player"; tierDesc = "Contributed, but limited peak years."; }
-
-      return {
-        profile,
-        seasons,
-        trophies,
-        earnings,
-        injuryCount,
-        retiredReason,
-        careerScore,
-        tier,
-        tierDesc,
-        logs
-      };
+    if(Math.random() < performance/25){
+      trophies++;
+      event += " + Trophy";
     }
 
+    log.innerHTML += `
+      <tr>
+        <td>${seasons}</td>
+        <td>${age}</td>
+        <td>${performance.toFixed(1)}</td>
+        <td>${event}</td>
+      </tr>
+    `;
 
-    function renderResult(result){
-      statusHint.innerText = `Simulation complete for ${result.profile.name || "Athlete"} (${result.profile.sport})`;
+    age++;
+  }
 
-      tierOut.innerText = result.tier;
-      tierSub.innerText = result.tierDesc;
+  document.getElementById("tier").innerText =
+    trophies >= 4 ? "Star" :
+    trophies >= 2 ? "Professional" :
+    "Developing";
 
-      seasonsOut.innerText = result.seasons;
-      retireReason.innerText = result.retiredReason;
+  document.getElementById("seasons").innerText = seasons;
+  document.getElementById("trophies").innerText = trophies;
+  document.getElementById("logTable").style.display="table";
+}
 
-      trophiesOut.innerText = result.trophies;
-      earningsOut.innerText = fmtMoney(result.earnings);
+function resetSim(){
+  document.getElementById("tier").innerText="—";
+  document.getElementById("seasons").innerText="—";
+  document.getElementById("trophies").innerText="—";
+  document.getElementById("logTable").style.display="none";
+}
 
-      scoreText.innerText = result.careerScore + " / 100";
-      scoreBar.style.width = result.careerScore + "%";
-
-
-      if (result.profile.showDebug){
-        debugBox.style.display = "block";
-        const last = result.logs[result.logs.length - 1];
-        const sample = result.logs[Math.min(0, result.logs.length-1)];
-        // show ranges + last season probabilities
-        const avgInjury = result.logs.reduce((a,x)=>a+x.injuryChance,0)/result.logs.length;
-        const avgTrophy = result.logs.reduce((a,x)=>a+x.trophyChance,0)/result.logs.length;
-        debugBox.innerHTML = `
-          <b>Debug:</b> avg injury chance: ${(avgInjury*100).toFixed(1)}% • avg trophy chance: ${(avgTrophy*100).toFixed(1)}% • injuries: ${result.injuryCount}
-          <br/>Last season injury chance: ${(last.injuryChance*100).toFixed(1)}% • trophy chance: ${(last.trophyChance*100).toFixed(1)}%
-        `;
-      } else {
-        debugBox.style.display = "none";
-      }
-
-
-      logBody.innerHTML = "";
-      for (const row of result.logs){
-        const perf = clamp(row.performance, 0, 20);
-        let perfBadge = "warn";
-        if (perf >= 12) perfBadge = "good";
-        if (perf < 7) perfBadge = "bad";
-
-        const eventBadge =
-          row.event.includes("Trophy") ? "good" :
-          row.event.includes("Injury") ? "bad" : "warn";
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row.season}</td>
-          <td>${row.age}</td>
-          <td><span class="badge ${perfBadge}">${perf.toFixed(1)}</span></td>
-          <td><span class="badge ${eventBadge}">${row.event}</span></td>
-          <td>${row.notes}</td>
-        `;
-        logBody.appendChild(tr);
-      }
-      logTable.style.display = "table";
-
-      window.__lastResult = result;
-    }
-
-    function readInputs(){
-      const name = (elName.value || "").trim();
-      const startAge = parseInt(elAge.value, 10);
-      const sport = elSport.value;
-
-      const talent = parseInt(elTalent.value, 10);
-      const training = parseInt(elTraining.value, 10);
-      const risk = parseInt(elRisk.value, 10);
-
-      if (!Number.isFinite(startAge) || startAge < 12 || startAge > 45){
-        return { ok:false, msg:"Starting Age must be a number between 12 and 45." };
-      }
-      if (!Number.isFinite(talent) || talent < 1 || talent > 10) {
-        return { ok:false, msg:"Talent must be between 1 and 10." };
-      }
-      if (!Number.isFinite(training) || training < 1 || training > 10) {
-        return { ok:false, msg:"Training Intensity must be between 1 and 10." };
-      }
-      if (!Number.isFinite(risk) || risk < 1 || risk > 10) {
-        return { ok:false, msg:"Injury Risk must be between 1 and 10." };
-      }
-
-      return {
-        ok:true,
-        data:{
-          name,
-          startAge,
-          sport,
-          talent,
-          training,
-          risk,
-          playSafe: elPlaySafe.checked,
-          showDebug: elShowDebug.checked
-        }
-      };
-    }
-
-    function exportTxt(){
-      const r = window.__lastResult;
-      if (!r){
-        showError("Run a simulation first, then export results.");
-        return;
-      }
-      clearError();
-
-      let lines = [];
-      lines.push("Interactive Sports Career Simulator - Export");
-      lines.push("===========================================");
-      lines.push(`Name: ${r.profile.name || "(blank)"}`);
-      lines.push(`Sport: ${r.profile.sport}`);
-      lines.push(`Start Age: ${r.profile.startAge}`);
-      lines.push(`Talent: ${r.profile.talent}/10`);
-      lines.push(`Training: ${r.profile.training}/10`);
-      lines.push(`Injury Risk: ${r.profile.risk}/10`);
-      lines.push(`Play Safe Mode: ${r.profile.playSafe ? "ON" : "OFF"}`);
-      lines.push("");
-      lines.push(`Career Tier: ${r.tier} - ${r.tierDesc}`);
-      lines.push(`Career Score: ${r.careerScore}/100`);
-      lines.push(`Seasons Played: ${r.seasons}`);
-      lines.push(`Trophies: ${r.trophies}`);
-      lines.push(`Earnings: ${fmtMoney(r.earnings)}`);
-      lines.push(`Retirement Reason: ${r.retiredReason}`);
-      lines.push("");
-      lines.push("Season Log:");
-      lines.push("Season,Age,Performance,Event,Notes,SeasonPay");
-      for (const row of r.logs){
-        lines.push(`${row.season},${row.age},${row.performance.toFixed(2)},${row.event},"${row.notes}",${Math.round(row.seasonPay)}`);
-      }
-
-      const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `career_sim_${(r.profile.name||"athlete").replaceAll(" ","_")}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    function resetAll(){
-      clearError();
-      statusHint.innerText = "No simulation yet";
-
-      tierOut.innerText = "—";
-      tierSub.innerText = "—";
-      seasonsOut.innerText = "—";
-      retireReason.innerText = "—";
-      trophiesOut.innerText = "—";
-      earningsOut.innerText = "—";
-      scoreText.innerText = "—";
-      scoreBar.style.width = "0%";
-
-      logBody.innerHTML = "";
-      logTable.style.display = "none";
-      debugBox.style.display = "none";
-
-      window.__lastResult = null;
-    }
-
-    simulateBtn.addEventListener("click", () => {
-      playClickSound();
-      clearError();
-
-      const inputs = readInputs();
-      if (!inputs.ok){
-        showError(inputs.msg);
-        return;
-      }
-
-      const athlete = {
-        name: inputs.data.name,
-        startAge: inputs.data.startAge,
-        sport: inputs.data.sport,
-        talent: inputs.data.talent,
-        training: inputs.data.training,
-        risk: inputs.data.risk,
-        playSafe: inputs.data.playSafe,
-        showDebug: inputs.data.showDebug
-      };
-
-      const result = simulateCareer(athlete);
-      renderResult(result);
-    });
-
-    exportBtn.addEventListener("click", () => {
-      playClickSound();
-      exportTxt();
-    });
-
-    resetBtn.addEventListener("click", () => {
-      playClickSound();
-      resetAll();
-    });
-
-    // Start clean
-    resetAll();
-  </script>
+function showError(msg){
+  let e = document.getElementById("error");
+  e.innerText = msg;
+  e.style.display="block";
+}
+</script>
 </body>
 </html>
-
